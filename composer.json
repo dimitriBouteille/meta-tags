@@ -1,0 +1,28 @@
+{
+  "name": "dbout/meta-tags",
+  "description": "Customize and automate head section of your layouts.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["tag", "php", "html", "open-graph", "head", "seo", "seo-meta", "schema", "twitter-cards", "stylesheets", "facebook", "meta"],
+  "homepage": "https://github.com/dimitriBouteille/meta-tags/",
+  "support": {
+    "issues": "https://github.com/dimitriBouteille/meta-tags/issues"
+  },
+  "authors": [
+    {
+      "name": "Dimitri Bouteille",
+      "email": "bonjour@dimitri-bouteille.fr",
+      "homepage": "https://github.com/dimitriBouteille",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0"
+  },
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Dbout\\MetaTags\\": "src/"
+    }
+  }
+}
