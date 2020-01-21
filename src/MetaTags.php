@@ -36,8 +36,8 @@ class MetaTags
      * @param string $value
      * @return MetaTags
      */
-    public function og(string $key, string $value): self {
-
+    public function og(string $key, string $value): self
+    {
         $tag = $this->makeTag('meta', [
             'property' => sprintf('og:%s', $key),
             'content' => $value,
@@ -55,8 +55,8 @@ class MetaTags
      * @param string $value
      * @return MetaTags
      */
-    public function twitter(string $key, string $value): self {
-
+    public function twitter(string $key, string $value): self
+    {
         $tag = $this->makeTag('meta', [
             'name' => sprintf('twitter:%s', $key),
             'content' => $value,
@@ -73,10 +73,9 @@ class MetaTags
      * @param string $title
      * @return MetaTags
      */
-    public function title(string $title): self {
-
+    public function title(string $title): self
+    {
         $tag = sprintf('<title>%s</title>', $title);
-
         $this->addTag($tag, 'title');
 
         return $this;
@@ -88,8 +87,8 @@ class MetaTags
      * @param array $schema
      * @return MetaTags
      */
-    public function jsonLd(array $schema):  self {
-
+    public function jsonLd(array $schema):  self
+    {
         $json = json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         $script = sprintf('<script type="application/ld+json">%s</script>', $json);
 
@@ -104,8 +103,8 @@ class MetaTags
      * @param string|array $value
      * @return MetaTags
      */
-    public function meta($key, $value = null): self {
-
+    public function meta($key, $value = null): self
+    {
         $attributes = [];
         if(is_string($key)) {
             $attributes = ['name' => $key];
@@ -185,10 +184,11 @@ class MetaTags
      *
      * @param string $rel
      * @param $value
-     * @return MetaTags
+     * @param array $attributes
+     * @return $this
      */
-    public function link(string $rel, $value): self {
-
+    public function link(string $rel, $value, array $attributes = []): self
+    {
         $attributes = ['rel' => $rel];
 
         if(is_array($value)) {
@@ -210,8 +210,8 @@ class MetaTags
      * @param null $media
      * @return MetaTags
      */
-    public function stylesheet(string $href, $media = null): self {
-
+    public function stylesheet(string $href, $media = null): self
+    {
         return $this->link('stylesheet', [
             'type' =>   'text/css',
             'media' =>  $media,
@@ -225,8 +225,8 @@ class MetaTags
      * @param string $style
      * @return MetaTags
      */
-    public function style(string $style): self {
-
+    public function style(string $style): self
+    {
         $tag = sprintf('<style type="text/css">%s</style>', $style);
         $this->addTag($tag, 'style');
 
@@ -239,8 +239,8 @@ class MetaTags
      * @param string $script
      * @return MetaTags
      */
-    public function script(string $script): self {
-
+    public function script(string $script): self
+    {
         $tag = sprintf('<script>%s</script>', $script);
         $this->addTag($tag, 'script');
 
@@ -277,13 +277,19 @@ class MetaTags
      * @param array $attributes
      * @return string
      */
-    protected function makeStrAttributes(array $attributes): string {
-
+    protected function makeStrAttributes(array $attributes): string
+    {
         $html = [];
 
         foreach ($attributes as $key => $value) {
 
-            $attr = sprintf('%s="%s"', $key, $value);
+            if(is_bool($value)) {
+                if($value == true) {
+                    $attr = $key;
+                }
+            } else {
+                $attr = sprintf('%s="%s"', $key, $value);
+            }
 
             if(!empty($attr) && !empty($value)) {
                 $html[] = $attr;
@@ -300,8 +306,8 @@ class MetaTags
      * @param string $group
      * @return void
      */
-    protected function addTag(string $tag, string $group): void {
-
+    protected function addTag(string $tag, string $group): void
+    {
         if(!key_exists($group, $this->tags)) {
             $this->tags[$group] = new MetaTagsGroup();
         }
@@ -315,8 +321,8 @@ class MetaTags
      * @param array $groups
      * @return string|null
      */
-    public function render(array $groups = []): ?string {
-
+    public function render(array $groups = []): ?string
+    {
         $groups = count($groups) > 0 ? $groups : $this->order;
         $html = [];
 
