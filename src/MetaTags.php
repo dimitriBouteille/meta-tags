@@ -30,11 +30,25 @@ class MetaTags
     protected $tags = [];
 
     /**
-     * Function og
-     *
+     * @var bool
+     */
+    protected $minimize;
+
+    /**
+     * MetaTags constructor.
+     * @param string|null $indentation
+     * @param bool $minimize
+     */
+    public function __construct(string $indentation = null, bool $minimize = false)
+    {
+        $this->minimize = $minimize;
+        $this->indentation = empty($indentation) ? '    ' : $indentation;
+    }
+
+    /**
      * @param string $key
      * @param string $value
-     * @return MetaTags
+     * @return $this
      */
     public function og(string $key, string $value): self
     {
@@ -49,11 +63,9 @@ class MetaTags
     }
 
     /**
-     * Function twitter
-     *
      * @param string $key
      * @param string $value
-     * @return MetaTags
+     * @return $this
      */
     public function twitter(string $key, string $value): self
     {
@@ -68,10 +80,8 @@ class MetaTags
     }
 
     /**
-     * Function title
-     *
      * @param string $title
-     * @return MetaTags
+     * @return $this
      */
     public function title(string $title): self
     {
@@ -82,14 +92,12 @@ class MetaTags
     }
 
     /**
-     * Function jsonLd
-     *
      * @param array $schema
-     * @return MetaTags
+     * @return $this
      */
     public function jsonLd(array $schema):  self
     {
-        $json = json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        $json = json_encode($schema, JSON_UNESCAPED_SLASHES | ($this->minimize ? null : JSON_PRETTY_PRINT));
         $script = sprintf('<script type="application/ld+json">%s</script>', $json);
 
         $this->addTag($script, 'json-ld');
@@ -97,11 +105,9 @@ class MetaTags
     }
 
     /**
-     * Function meta
-     *
-     * @param string|array $key
-     * @param string|array $value
-     * @return MetaTags
+     * @param $key
+     * @param null $value
+     * @return $this
      */
     public function meta($key, $value = null): self
     {
@@ -125,13 +131,11 @@ class MetaTags
     }
 
     /**
-     * Function charset
-     *
      * @param string $charset
-     * @return MetaTags
+     * @return $this
      */
-    public function charset(string $charset): self {
-
+    public function charset(string $charset): self
+    {
         $tag = $this->makeTag('meta', [
             'charset' => $charset,
         ]);
@@ -142,60 +146,47 @@ class MetaTags
     }
 
     /**
-     * Function robots
-     *
      * @param string $robot
-     * @return MetaTags
+     * @return $this
      */
-    public function robots(string $robot): self {
-
+    public function robots(string $robot): self
+    {
         $this->meta('robots', $robot);
         return $this;
     }
 
     /**
-     * Function favicon
-     *
      * @param string $href
      * @param string|null $type
-     * @return MetaTags
+     * @return $this
      */
-    public function favicon(string $href, string $type = null): self {
-
-        return $this->link('icon', [
-            'href' => $href,
+    public function favicon(string $href, string $type = null): self
+    {
+        return $this->link('icon', $href, [
             'type' => $type,
         ]);
     }
 
     /**
-     * Function description
-     *
      * @param string $value
-     * @return MetaTags
+     * @return $this
      */
-    public function description(string $value): self {
-
+    public function description(string $value): self
+    {
         return $this->meta('description', $value);
     }
 
     /**
-     * Function link
-     *
      * @param string $rel
-     * @param $value
+     * @param string $href
      * @param array $attributes
      * @return $this
      */
-    public function link(string $rel, $value, array $attributes = []): self
+    public function link(string $rel, string $href, array $attributes = []): self
     {
-        $attributes = ['rel' => $rel];
-
-        if(is_array($value)) {
-            $attributes = array_merge($attributes, $value);
-        } else {
-            $attributes['href'] = $value;
-        }
+        $attributes = array_merge([
+            'rel' => $rel,
+            'href' => $href,], $attributes);
 
         $tag = $this->makeTag('link', $attributes);
         $this->addTag($tag, 'link');
@@ -204,26 +195,21 @@ class MetaTags
     }
 
     /**
-     * Function stylesheet
-     *
      * @param string $href
      * @param null $media
-     * @return MetaTags
+     * @return $this
      */
     public function stylesheet(string $href, $media = null): self
     {
-        return $this->link('stylesheet', [
+        return $this->link('stylesheet', $href, [
             'type' =>   'text/css',
             'media' =>  $media,
-            'href' =>   $href,
         ]);
     }
 
     /**
-     * Function style
-     *
      * @param string $style
-     * @return MetaTags
+     * @return $this
      */
     public function style(string $style): self
     {
@@ -234,10 +220,8 @@ class MetaTags
     }
 
     /**
-     * Function script
-     *
      * @param string $script
-     * @return MetaTags
+     * @return $this
      */
     public function script(string $script): self
     {
@@ -248,14 +232,12 @@ class MetaTags
     }
 
     /**
-     * Function makeTag
-     *
      * @param string $tagName
      * @param $attributes
      * @return string|null
      */
-    protected function makeTag(string $tagName, $attributes): ?string {
-
+    protected function makeTag(string $tagName, $attributes): ?string
+    {
         if(!empty($tagName)) {
 
             if(is_array($attributes)) {
@@ -271,7 +253,6 @@ class MetaTags
     }
 
     /**
-     * Function makeStrAttributes
      * ie : attr="value" secondAttr="value"
      *
      * @param array $attributes
@@ -300,11 +281,8 @@ class MetaTags
     }
 
     /**
-     * Function addTag
-     *
      * @param string $tag
      * @param string $group
-     * @return void
      */
     protected function addTag(string $tag, string $group): void
     {
@@ -316,8 +294,6 @@ class MetaTags
     }
 
     /**
-     * Function render
-     *
      * @param array $groups
      * @return string|null
      */
@@ -336,9 +312,12 @@ class MetaTags
             }
         }
 
+        if($this->minimize){
+            return implode('', $html);
+        }
+
         $html = count($html) > 0 ? sprintf("%s%s\n", $this->indentation, implode("\n" . $this->indentation, $html)) : '';
         $html = preg_replace(sprintf('#^%s#', $this->indentation), '', $html, 1);
-
         return $html;
     }
 
